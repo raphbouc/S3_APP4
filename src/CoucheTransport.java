@@ -5,8 +5,8 @@ import static java.util.Arrays.fill;
 
 import static java.lang.System.arraycopy;
 
-public class TransportLayer extends Layer {
-    private static TransportLayer instance;
+public class CoucheTransport extends Couche {
+    private static CoucheTransport instance;
 
     private final char CODE_START = 'd';
     private final char CODE_END = 'f';
@@ -26,9 +26,22 @@ public class TransportLayer extends Layer {
 
     private int EndSequence = -1;
 
-    public static TransportLayer getInstance() {
-        return instance == null ? instance = new TransportLayer() : instance;
+    /**
+     * Modele de conception singleton pour la couche de transport
+     * @return l instance sil y en pas deja une de creer
+     */
+    public static CoucheTransport getInstance() {
+        if (instance == null){
+            instance = new CoucheTransport();
+
+        }
+        return instance;
     }
+
+    /**
+     * Recoit les datas de la couche application
+     * @param PDU  liste qui contient les 188 premiers bytes du pdu
+     */
     
     @Override
     protected void getFromUp(byte[] PDU) {
@@ -62,6 +75,12 @@ public class TransportLayer extends Layer {
         }
         System.out.println("Done transmission of packets.");
     }
+
+    /**
+     * Methode pour recevoir les paquets de la couche reseau
+     * @param PDU paquet de la couche reseau
+     * @throws TransmissionErrorException si il y a une erreur dans la transmission
+     */
 
     @Override
     protected void getFromDown(byte[] PDU) throws TransmissionErrorException {
@@ -115,6 +134,13 @@ public class TransportLayer extends Layer {
         }
     }
 
+    /**
+     * Methode pour sauvegarder un paquet de donnee
+     * @param seq numero du paquet
+     * @param data_bytes les bytes du paquet sans le header
+     * @throws TransmissionErrorException sil y a une erreur de transmission
+     */
+
     private void savePDU(int seq, byte[] data_bytes) throws TransmissionErrorException {
         if (seq != 0 && receiveBuffer.get(seq - 1) == null) {
             errors++;
@@ -132,6 +158,11 @@ public class TransportLayer extends Layer {
         sendDown(ackPDU);
     }
 
+    /**
+     * Creer et renvoyer un paquet
+     * @param seq numero du paquet
+     * @return PDU a renvoyer
+     */
     private byte[] createResendPDU(int seq) {
         int taille = 0;
         byte[] resendPDU = new byte[200];
@@ -145,6 +176,11 @@ public class TransportLayer extends Layer {
         return resendPDU;
     }
 
+    /**
+     * Creer le ack paquet
+     * @param seq numero du packet
+     * @return pdu qui contien le ack
+     */
     private byte[] createAckPDU(int seq) {
         byte[] ackPDU = new byte[200];
 
@@ -156,6 +192,13 @@ public class TransportLayer extends Layer {
         // Send lower Layer
         return ackPDU;
     }
+
+    /**
+     * Convertir les data en ascii
+     * @param data data a changer
+     * @param size
+     * @return la data changee
+     */
 
     private byte[] convertIntToASCII(int data, int size) {
         String converted = Integer.toString(data);
@@ -169,11 +212,21 @@ public class TransportLayer extends Layer {
         return newData;
     }
 
+    /**
+     * Changer la data de ascii a int
+     * @param data
+     * @return
+     */
     private int convertAsciiToInt(byte[] data) {
         String data_string = new String(data);
         return Integer.parseInt(removeLeadingZeros(data_string));
     }
 
+    /**
+     * Retirer les 0 au debut du chaine de caractere
+     * @param str chaine de caractere a retirer les 0 du debut
+     * @return la string sans les 0 initiaux
+     */
     public static String removeLeadingZeros(String str)
     {
         String regex = "^0+(?!$)";

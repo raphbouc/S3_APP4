@@ -1,8 +1,8 @@
-public class NetworkLayer extends Layer{
-    private static NetworkLayer instance;
-    public  static NetworkLayer getInstance(){
+public class CoucheReseau extends Couche {
+    private static CoucheReseau instance;
+    public  static CoucheReseau getInstance(){
         if (instance == null){
-            instance = new NetworkLayer();
+            instance = new CoucheReseau();
         }
         return instance;
     }

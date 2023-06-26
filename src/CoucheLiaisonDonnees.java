@@ -2,17 +2,17 @@ import java.util.zip.CRC32;
 
 import static java.lang.System.arraycopy;
 
-public class DataLinkLayer extends Layer{
+public class CoucheLiaisonDonnees extends Couche {
     private int ErreurCRC = 0;
     private int PacketRecu = 0;
     private int PacketEnvoye = 0;
-    private static DataLinkLayer instance;
-    private DataLinkLayer(){
+    private static CoucheLiaisonDonnees instance;
+    private CoucheLiaisonDonnees(){
 
     }
-    static  public DataLinkLayer getInstance(){
+    static  public CoucheLiaisonDonnees getInstance(){
         if (instance == null){
-            instance = new DataLinkLayer();
+            instance = new CoucheLiaisonDonnees();
         }
         return instance;
     }

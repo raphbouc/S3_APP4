@@ -1,39 +1,39 @@
 import java.io.IOException;
 
 public class ServerInstance {
-    private PhysicalLayer physicalLayer;
+    private CouchePhysique couchePhysique;
 
     public ServerInstance(String listening_port) throws IOException {
         ServerInstanceBuild(listening_port);
     }
 
     private void ServerInstanceBuild(String listening_port) throws IOException {
-        ApplicationLayer applicationLayer = ApplicationLayer.getInstance();
-        TransportLayer transportLayer = TransportLayer.getInstance();
-        NetworkLayer networkLayer = NetworkLayer.getInstance();
-        DataLinkLayer dataLinkLayer = DataLinkLayer.getInstance();
-        physicalLayer = PhysicalLayer.getInstance();
-        physicalLayer.setLayerUp(dataLinkLayer);
-        dataLinkLayer.setLayerUp(networkLayer);
-        dataLinkLayer.setLayerDown(physicalLayer);
-        networkLayer.setLayerUp(transportLayer);
-        networkLayer.setLayerDown(dataLinkLayer);
-        transportLayer.setLayerDown(networkLayer);
-        transportLayer.setLayerUp(applicationLayer);
-        applicationLayer.setLayerDown(transportLayer);
+        CoucheApplication coucheApplication = CoucheApplication.getInstance();
+        CoucheTransport coucheTransport = CoucheTransport.getInstance();
+        CoucheReseau coucheReseau = CoucheReseau.getInstance();
+        CoucheLiaisonDonnees coucheLiaisonDonnees = CoucheLiaisonDonnees.getInstance();
+        couchePhysique = CouchePhysique.getInstance();
+        couchePhysique.setLayerUp(coucheLiaisonDonnees);
+        coucheLiaisonDonnees.setLayerUp(coucheReseau);
+        coucheLiaisonDonnees.setLayerDown(couchePhysique);
+        coucheReseau.setLayerUp(coucheTransport);
+        coucheReseau.setLayerDown(coucheLiaisonDonnees);
+        coucheTransport.setLayerDown(coucheReseau);
+        coucheTransport.setLayerUp(coucheApplication);
+        coucheApplication.setLayerDown(coucheTransport);
         // set server
-        physicalLayer.setReceptionThread(Integer.parseInt(listening_port));
-        physicalLayer.setDestPort(25001);
-        physicalLayer.setDestAddresseIp("localhost");
+        couchePhysique.setReceptionThread(Integer.parseInt(listening_port));
+        couchePhysique.setDestPort(25001);
+        couchePhysique.setDestAddresseIp("localhost");
     }
 
 
     public void StartServer() throws IOException {
-        physicalLayer.start();
+        couchePhysique.start();
         System.out.println("Running");
         System.out.println("Q: to kill");
         System.out.println("Then enter");
-        while(physicalLayer.threadRunning()) {
+        while(couchePhysique.threadRunning()) {
             int command = System.in.read();
             switch (command) {
                 case 113:

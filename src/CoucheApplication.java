@@ -8,11 +8,11 @@ import java.util.Arrays;
 
 import static java.lang.System.arraycopy;
 
-public class ApplicationLayer extends Layer{
-    private static ApplicationLayer instance;
-    public static ApplicationLayer getInstance(){
+public class CoucheApplication extends Couche {
+    private static CoucheApplication instance;
+    public static CoucheApplication getInstance(){
         if (instance == null){
-            instance = new ApplicationLayer();
+            instance = new CoucheApplication();
         }
         return instance;
     }

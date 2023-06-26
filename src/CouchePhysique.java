@@ -1,19 +1,19 @@
 import java.io.*;
 import java.net.*;
-public class PhysicalLayer extends Layer{
+public class CouchePhysique extends Couche {
     int port = 0;
     public int delay = 0;
     public int delayerreur = -1;
     public int packetenvoye = 0;
     InetAddress addressIP = null;
     protected ReceptionThread thread;
-    private static PhysicalLayer instance;
-    private PhysicalLayer(){
+    private static CouchePhysique instance;
+    private CouchePhysique(){
 
     };
-    static public PhysicalLayer getInstance(){
+    static public CouchePhysique getInstance(){
         if (instance == null){
-            instance = new PhysicalLayer();
+            instance = new CouchePhysique();
         }
         return instance;
     }
@@ -76,10 +76,10 @@ public class PhysicalLayer extends Layer{
 
     private class ReceptionThread extends Thread{
         protected  DatagramSocket Dsocket = null;
-        private PhysicalLayer PhysLayer;
+        private CouchePhysique PhysLayer;
         public boolean running = true;
 
-        public ReceptionThread(int port, PhysicalLayer PhysLayer) throws IOException{
+        public ReceptionThread(int port, CouchePhysique PhysLayer) throws IOException{
             super("PhysicalLayer ReceptionThread" + Math.random());
             Dsocket = new DatagramSocket(port);
             this.PhysLayer = PhysLayer;
