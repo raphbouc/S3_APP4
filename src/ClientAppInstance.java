@@ -29,7 +29,7 @@
             physicalLayer.setReceptionThread(Integer.parseInt(listening_port));
             physicalLayer.delayerreur = addErrors ? 10 : -1;
             physicalLayer.delay = 1;
-            physicalLayer.setDestPort(4446);
+            physicalLayer.setDestPort(25002);
             physicalLayer.setDestAddresseIp(destination_ip);
         }
 

@@ -23,7 +23,7 @@ public class ServerInstance {
         applicationLayer.setLayerDown(transportLayer);
         // set server
         physicalLayer.setReceptionThread(Integer.parseInt(listening_port));
-        physicalLayer.setDestPort(4445);
+        physicalLayer.setDestPort(25001);
         physicalLayer.setDestAddresseIp("localhost");
     }
 

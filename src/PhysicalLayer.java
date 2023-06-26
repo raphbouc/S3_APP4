@@ -87,7 +87,7 @@ public class PhysicalLayer extends Layer{
         public void run(){
             while (running){
                 try {
-                        byte[] buffer = new byte[256];
+                        byte[] buffer = new byte[204];
                         DatagramPacket Dpacket = new DatagramPacket(buffer, buffer.length);
                         Dsocket.receive(Dpacket);
                         PhysLayer.getFromDown(Dpacket.getData());

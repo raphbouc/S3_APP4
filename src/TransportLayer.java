@@ -1,37 +1,41 @@
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.nio.charset.StandardCharsets;
+import java.util.*;
+
 import static java.util.Arrays.fill;
+
 import static java.lang.System.arraycopy;
 
 public class TransportLayer extends Layer {
     private static TransportLayer instance;
-    private final char CODE_START = 's';
-    private final char CODE_END = 'e';
+
+    private final char CODE_START = 'd';
+    private final char CODE_END = 'f';
     private final char CODE_NORMAL = ' ';
-    private final char CODE_HACK = 'a';
+    private final char CODE_ACK = 'a';
     private final char CODE_RESEND = 'r';
+
     private final int OFFSET = 11;
     private final int SIZE = 188;
     private final int SIZE_HEADER_POS = 9;
-    private final int SEQ_HEADER_POS =1;
-    private int errors;
-    private  byte[][] TPDU;
-    private Map<Integer, byte[]> bufferrecu;
-    private int EndSequence = -1;
-    public static TransportLayer getInstance(){
-        if(instance == null){
-            instance = new TransportLayer();
-        }
-        return instance;
-    }
+    private final int SEQ_HEADER_POS = 1;
 
+    private int errors;
+
+    private byte[][] TPDU;
+    private Map<Integer, byte[]> receiveBuffer;
+
+    private int EndSequence = -1;
+
+    public static TransportLayer getInstance() {
+        return instance == null ? instance = new TransportLayer() : instance;
+    }
+    
     @Override
     protected void getFromUp(byte[] PDU) {
         int count = (int) Math.ceil((double) PDU.length / SIZE);
         TPDU = new byte[count][200];
 
+        // Division of PDU for size of 200 each & end send to Layer
         for(int i = 0; i < count; i++) {
             int taille = SIZE;
             if (i == count - 1) {
@@ -39,22 +43,25 @@ public class TransportLayer extends Layer {
             }
 
             arraycopy(PDU, i * SIZE, TPDU[i], OFFSET + 1, taille);
+
+
             char code = CODE_NORMAL;
             if (i == 0) {
                 code = CODE_START;
-            } else if (i == count -1) {
+            } else if (i == count - 1) {
                 code = CODE_END;
             }
 
-            TPDU[i][0] = (byte) code;
-            arraycopy(convertIntToASCII(i, 8), 0, TPDU[i], SEQ_HEADER_POS, 8);
-            arraycopy(convertIntToASCII(taille,3), 0, TPDU[i], SEQ_HEADER_POS, 3);
+            // Copy data size as ASCII in header
+            TPDU[i][0] = (byte) code;       // Assuming sizeof(char) == sizeof(byte)
+            arraycopy(convertIntToASCII(i, 8), 0, TPDU[i], SEQ_HEADER_POS, 8); // SEQUENCE
+            arraycopy(convertIntToASCII(taille, 3), 0, TPDU[i], SIZE_HEADER_POS, 3); // SIZE
 
+            // Send lower Layer
             sendDown(TPDU[i]);
         }
-        System.out.println("Transmission du packet fini");
+        System.out.println("Done transmission of packets.");
     }
-
 
     @Override
     protected void getFromDown(byte[] PDU) throws TransmissionErrorException {
@@ -71,7 +78,7 @@ public class TransportLayer extends Layer {
             case CODE_START:
                 // start of the communication & reset receive Buffer
                 EndSequence = -1;
-                bufferrecu = new HashMap<>();
+                receiveBuffer = new HashMap<>();
                 savePDU(0, data_bytes);
                 break;
 
@@ -83,7 +90,7 @@ public class TransportLayer extends Layer {
             case CODE_NORMAL:
                 savePDU(seq, data_bytes);
                 break;
-            case CODE_HACK:
+            case CODE_ACK:
                 break;
             case CODE_RESEND:
                 errors++;
@@ -93,13 +100,13 @@ public class TransportLayer extends Layer {
         }
 
         if(EndSequence != -1) {
-            System.out.println("size " + bufferrecu.size() + " end sequence " + EndSequence);
-            if(bufferrecu.size() <= EndSequence)
+            System.out.println("size " + receiveBuffer.size() + " end sequence " + EndSequence);
+            if(receiveBuffer.size() <= EndSequence)
                 return;
-            int arrayL = (bufferrecu.size() - 1) * SIZE + bufferrecu.get(EndSequence).length;
+            int arrayL = (receiveBuffer.size() - 1) * SIZE + receiveBuffer.get(EndSequence).length;
             byte[] passUpBuffer = new byte[arrayL];
             int count = 0;
-            for (Map.Entry<Integer, byte[]> key_value : bufferrecu.entrySet()) {
+            for (Map.Entry<Integer, byte[]> key_value : receiveBuffer.entrySet()) {
                 arraycopy(key_value.getValue(), 0, passUpBuffer, count, key_value.getValue().length);
                 count += key_value.getValue().length;
             }
@@ -109,7 +116,7 @@ public class TransportLayer extends Layer {
     }
 
     private void savePDU(int seq, byte[] data_bytes) throws TransmissionErrorException {
-        if (seq != 0 && bufferrecu.get(seq - 1) == null) {
+        if (seq != 0 && receiveBuffer.get(seq - 1) == null) {
             errors++;
             if(errors >= 3) {
                 // TODO: throw error
@@ -118,12 +125,13 @@ public class TransportLayer extends Layer {
             byte[] rPDU = createResendPDU(seq - 1);
             sendDown(rPDU);
         }
-        if (bufferrecu.get(seq) != null)
+        if (receiveBuffer.get(seq) != null)
             return;
-        bufferrecu.put(seq, data_bytes);
+        receiveBuffer.put(seq, data_bytes);
         byte[] ackPDU = createAckPDU(seq);
         sendDown(ackPDU);
     }
+
     private byte[] createResendPDU(int seq) {
         int taille = 0;
         byte[] resendPDU = new byte[200];
@@ -135,14 +143,13 @@ public class TransportLayer extends Layer {
 
         // Send lower Layer
         return resendPDU;
-
     }
 
     private byte[] createAckPDU(int seq) {
         byte[] ackPDU = new byte[200];
 
         // Copy data size as ASCII in header
-        ackPDU[0] = (byte) CODE_HACK;       // Assuming sizeof(char) == sizeof(byte)
+        ackPDU[0] = (byte) CODE_ACK;       // Assuming sizeof(char) == sizeof(byte)
         arraycopy(convertIntToASCII(seq, 8), 0, ackPDU, SEQ_HEADER_POS, 8); // SEQUENCE
         arraycopy(convertIntToASCII(0, 3), 0, ackPDU, SIZE_HEADER_POS, 3); // SIZE
 
@@ -175,4 +182,3 @@ public class TransportLayer extends Layer {
         return str;
     }
 }
-
