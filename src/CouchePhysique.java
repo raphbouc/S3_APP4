@@ -68,7 +68,7 @@ public class CouchePhysique extends Couche {
     }
 
     /**
-     * 
+     * recevoir les donnees de la couche liaison de donnees
      * @param PDU
      */
     @Override
@@ -92,13 +92,25 @@ public class CouchePhysique extends Couche {
         }
     }
 
+    /**
+     * transmettre les donnees recu a liaisons de donnees
+     * @param PDU
+     * @throws TransmissionErrorException
+     */
     @Override
     protected void getFromDown(byte[] PDU) throws TransmissionErrorException {
         sendUp(PDU);
     }
+
+    /**
+     * Creer une reception de thread sur le port selectionne
+     * @param port
+     * @throws IOException
+     */
     public void setReceptionThread(int port) throws IOException{
         this.thread = new ReceptionThread(port, this);
     }
+
 
     private class ReceptionThread extends Thread{
         protected  DatagramSocket Dsocket = null;
@@ -110,6 +122,10 @@ public class CouchePhysique extends Couche {
             Dsocket = new DatagramSocket(port);
             this.PhysLayer = PhysLayer;
         }
+
+        /**
+         * regarder constament a la reception
+         */
         public void run(){
             while (running){
                 try {
