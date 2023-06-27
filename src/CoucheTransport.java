@@ -38,11 +38,14 @@ public class CoucheTransport extends Couche {
         return instance;
     }
 
+<<<<<<< HEAD:src/CoucheTransport.java
     /**
      * Recoit les datas de la couche application
      * @param PDU  liste qui contient les 188 premiers bytes du pdu
      */
     
+=======
+>>>>>>> raph:src/TransportLayer.java
     @Override
     protected void getFromUp(byte[] PDU) {
         int count = (int) Math.ceil((double) PDU.length / SIZE);
@@ -128,7 +131,11 @@ public class CoucheTransport extends Couche {
                 arraycopy(key_value.getValue(), 0, passUpBuffer, count, key_value.getValue().length);
                 count += key_value.getValue().length;
             }
+<<<<<<< HEAD:src/CoucheTransport.java
             System.out.println("Erreur(s) : " + errors);
+=======
+            System.out.println("ERREUR:" + errors);
+>>>>>>> raph:src/TransportLayer.java
             sendUp(passUpBuffer);
         }
     }
