@@ -29,7 +29,7 @@ public class TransportLayer extends Layer {
     public static TransportLayer getInstance() {
         return instance == null ? instance = new TransportLayer() : instance;
     }
-    
+
     @Override
     protected void getFromUp(byte[] PDU) {
         int count = (int) Math.ceil((double) PDU.length / SIZE);
@@ -110,7 +110,7 @@ public class TransportLayer extends Layer {
                 arraycopy(key_value.getValue(), 0, passUpBuffer, count, key_value.getValue().length);
                 count += key_value.getValue().length;
             }
-            System.out.println("ERRRORSSSS:" + errors);
+            System.out.println("ERREUR:" + errors);
             sendUp(passUpBuffer);
         }
     }
