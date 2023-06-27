@@ -112,7 +112,6 @@ public class CoucheTransport extends Couche {
             case CODE_ACK:
                 break;
             case CODE_RESEND:
-                errors++;
                 System.out.println("resend packet: " + errors);
                 sendDown(TPDU[seq]);
                 break;
@@ -129,7 +128,7 @@ public class CoucheTransport extends Couche {
                 arraycopy(key_value.getValue(), 0, passUpBuffer, count, key_value.getValue().length);
                 count += key_value.getValue().length;
             }
-            System.out.println("ERRRORSSSS:" + errors);
+            System.out.println("Erreur(s) : " + errors);
             sendUp(passUpBuffer);
         }
     }
