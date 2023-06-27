@@ -1,29 +1,32 @@
 import java.io.*;
 import java.net.*;
-public class PhysicalLayer extends Layer{
+public class CouchePhysique extends Couche {
     int port = 0;
     public int delay = 0;
     public int delayerreur = -1;
     public int packetenvoye = 0;
     InetAddress addressIP = null;
     protected ReceptionThread thread;
-    private static PhysicalLayer instance;
-    private PhysicalLayer(){
+    private static CouchePhysique instance;
+    private CouchePhysique(){
 
     };
-    static public PhysicalLayer getInstance(){
+
+    /**
+     * Modele de conception singleton pour sassurer davoir une seul couche physique
+     * @return la couche
+     */
+    static public CouchePhysique getInstance(){
         if (instance == null){
-            instance = new PhysicalLayer();
+            instance = new CouchePhysique();
         }
         return instance;
     }
-    public void setDestAddresseIP(InetAddress address){
-        try {
-            this.addressIP = address;
-        } catch (Exception exception){
-            exception.printStackTrace();
-        }
-    }
+
+    /**
+     * set ladresse ip de destination
+     * @param addresse
+     */
     public void setDestAddresseIp(String addresse){
         try{
             this.addressIP = InetAddress.getByName(addresse);
@@ -31,20 +34,43 @@ public class PhysicalLayer extends Layer{
             exception.printStackTrace();
         }
     }
+
+    /**
+     * set le port de destination
+     * @param port
+     */
     public void setDestPort(int port){
         this.port = port;
     }
+
+    /**
+     * commencer le thread
+     */
     public void start(){
         thread.running = true;
         thread.start();
     }
+
+    /**
+     * terminer le thread
+     */
     public void stop(){
         thread.running = false;
         thread.interrupt();
     }
+
+    /**
+     * regarder si le thread est lancer
+     * @return vrai ou faux selon si le thread est lancer ou pas
+     */
     public boolean threadRunning(){
         return thread.running;
     }
+
+    /**
+     * 
+     * @param PDU
+     */
     @Override
     protected void getFromUp(byte[] PDU) {
         DatagramSocket Dsocket = null;
@@ -76,10 +102,10 @@ public class PhysicalLayer extends Layer{
 
     private class ReceptionThread extends Thread{
         protected  DatagramSocket Dsocket = null;
-        private PhysicalLayer PhysLayer;
+        private CouchePhysique PhysLayer;
         public boolean running = true;
 
-        public ReceptionThread(int port, PhysicalLayer PhysLayer) throws IOException{
+        public ReceptionThread(int port, CouchePhysique PhysLayer) throws IOException{
             super("PhysicalLayer ReceptionThread" + Math.random());
             Dsocket = new DatagramSocket(port);
             this.PhysLayer = PhysLayer;
@@ -87,7 +113,7 @@ public class PhysicalLayer extends Layer{
         public void run(){
             while (running){
                 try {
-                        byte[] buffer = new byte[256];
+                        byte[] buffer = new byte[204];
                         DatagramPacket Dpacket = new DatagramPacket(buffer, buffer.length);
                         Dsocket.receive(Dpacket);
                         PhysLayer.getFromDown(Dpacket.getData());

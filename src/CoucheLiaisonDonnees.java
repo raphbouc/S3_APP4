@@ -1,26 +1,45 @@
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.zip.CRC32;
 
 import static java.lang.System.arraycopy;
 
-public class DataLinkLayer extends Layer{
+public class CoucheLiaisonDonnees extends Couche {
     private int ErreurCRC = 0;
     private int PacketRecu = 0;
     private int PacketEnvoye = 0;
-    private static DataLinkLayer instance;
-    private DataLinkLayer(){
+    private static CoucheLiaisonDonnees instance;
+    private CoucheLiaisonDonnees(){
 
     }
-    static  public DataLinkLayer getInstance(){
+
+    /**
+     * modele de conception singleton pour sassurer pour davoir une couche liaisondonnees
+     * @return la couche
+     */
+    static  public CoucheLiaisonDonnees getInstance(){
         if (instance == null){
-            instance = new DataLinkLayer();
+            instance = new CoucheLiaisonDonnees();
         }
         return instance;
     }
+
+    /**
+     * Reinitialiser la couche
+     */
     public  void reset(){
         ErreurCRC = 0;
         PacketRecu = 0;
         PacketEnvoye = 0;
     }
+
+    /**
+     * Recevoir les donnees de la couche physique
+     * @param PDU
+     */
     @Override
     protected void getFromUp(byte[] PDU) {
         byte[] trame = new byte[PDU.length + 4];
@@ -36,11 +55,16 @@ public class DataLinkLayer extends Layer{
         arraycopy(CRCBytes, 0, trame, 0,CRCBytes.length);
         arraycopy(PDU, 0, trame, 4, PDU.length);
         PacketEnvoye++;
+        log("Le paquet est envoyé. Numéro de paquet: " + PacketEnvoye);
         sendDown(trame);
     }
 
 
-
+    /**
+     * Recevoir un paquet de la couche reseau
+     * @param PDU
+     * @throws TransmissionErrorException
+     */
     @Override
     protected void getFromDown(byte[] PDU) throws TransmissionErrorException {
         byte[] paquet = new byte[PDU.length -4];
@@ -52,9 +76,25 @@ public class DataLinkLayer extends Layer{
         if (CRCValeur != CRCold){
             System.out.println("Error CRC32");
             ErreurCRC++;
+            log("Erreur CRC. Nombre total d'erreurs CRC: " + ErreurCRC);
             return;
         }
         PacketRecu++;
+        log("Paquet reçu. Numéro de paquet: " + PacketRecu);
         sendUp(paquet);
+    }
+
+    /**
+     * Affiche le message dans un document
+     * @param message
+     */
+    private void log(String message) {
+        try (PrintWriter out = new PrintWriter(new FileWriter("liaisonDeDonnes.log", true))) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String timestamp = dateFormat.format(new Date());
+            out.println(timestamp + " - " + message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

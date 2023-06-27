@@ -1,5 +1,11 @@
 import java.io.*;
 public class ClientApp {
+    /**
+     * Fonction pour le client
+     * @param args
+     * @throws IOException
+     * @throws InterruptedException
+     */
     public static void main(String[] args) throws IOException, InterruptedException{
         String filename = args[0];
         String destination_ip = args[1];

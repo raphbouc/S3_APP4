@@ -1,42 +1,63 @@
 
     import java.io.IOException;
     public class ClientAppInstance {
-        PhysicalLayer physicalLayer;
-        ApplicationLayer applicationLayer;
+        CouchePhysique couchePhysique;
+        CoucheApplication coucheApplication;
         String filename;
 
+        /**
+         * Fonction pour envoyer le fichier
+         * @param filename nom du fichier
+         * @param destination_ip adresse ip de destination
+         * @param listening_port port
+         * @param addErrors savoir si on ajoute des erreur vonlontairement ou non
+         * @throws IOException exception
+         * @throws InterruptedException exception
+         */
         public ClientAppInstance(String filename, String destination_ip, String listening_port, boolean addErrors) throws IOException, InterruptedException {
             this.filename = filename;
             ClientInstanceBuild(destination_ip, listening_port, addErrors);
         }
 
+        /**
+         * Fonction pour envoyer le fichier
+         * @param destination_ip adresse ip de destination
+         * @param listening_port port
+         * @param addErrors facteur pour ajouter des erreurs volontairement ou non
+         * @throws IOException execption
+         */
         public void ClientInstanceBuild(String destination_ip, String listening_port, boolean addErrors) throws IOException {
-            TransportLayer transportLayer = TransportLayer.getInstance();
-            NetworkLayer networkLayer = NetworkLayer.getInstance();
-            DataLinkLayer dataLinkLayer = DataLinkLayer.getInstance();
-            physicalLayer = PhysicalLayer.getInstance();
-            applicationLayer = ApplicationLayer.getInstance();
-            physicalLayer.setLayerUp(dataLinkLayer);
-            dataLinkLayer.setLayerUp(networkLayer);
-            dataLinkLayer.setLayerDown(physicalLayer);
-            networkLayer.setLayerUp(transportLayer);
-            networkLayer.setLayerDown(dataLinkLayer);
-            transportLayer.setLayerDown(networkLayer);
-            transportLayer.setLayerUp(applicationLayer);
-            applicationLayer.setLayerDown(transportLayer);
+            CoucheTransport coucheTransport = CoucheTransport.getInstance();
+            CoucheReseau coucheReseau = CoucheReseau.getInstance();
+            CoucheLiaisonDonnees coucheLiaisonDonnees = CoucheLiaisonDonnees.getInstance();
+            couchePhysique = CouchePhysique.getInstance();
+            coucheApplication = CoucheApplication.getInstance();
+            couchePhysique.setLayerUp(coucheLiaisonDonnees);
+            coucheLiaisonDonnees.setLayerUp(coucheReseau);
+            coucheLiaisonDonnees.setLayerDown(couchePhysique);
+            coucheReseau.setLayerUp(coucheTransport);
+            coucheReseau.setLayerDown(coucheLiaisonDonnees);
+            coucheTransport.setLayerDown(coucheReseau);
+            coucheTransport.setLayerUp(coucheApplication);
+            coucheApplication.setLayerDown(coucheTransport);
 
             // set server
-            physicalLayer.setReceptionThread(Integer.parseInt(listening_port));
-            physicalLayer.delayerreur = addErrors ? 10 : -1;
-            physicalLayer.delay = 1;
-            physicalLayer.setDestPort(4446);
-            physicalLayer.setDestAddresseIp(destination_ip);
+            couchePhysique.setReceptionThread(Integer.parseInt(listening_port));
+            couchePhysique.delayerreur = addErrors ? 10 : -1;
+            couchePhysique.delay = 1;
+            couchePhysique.setDestPort(25002);
+            couchePhysique.setDestAddresseIp(destination_ip);
         }
 
+        /**
+         * Commencer a ajouter le fichier au serveur
+         * @throws IOException
+         * @throws InterruptedException
+         */
         public void ClientStart() throws IOException, InterruptedException {
             System.out.println("Client Start");
-            physicalLayer.start();
-            applicationLayer.EnvoyeFichier(filename);
+            couchePhysique.start();
+            coucheApplication.EnvoyeFichier(filename);
         }
     }
 
