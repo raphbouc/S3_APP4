@@ -68,7 +68,7 @@ public class CouchePhysique extends Couche {
     }
 
     /**
-     * 
+     * recevoir les donnees de la couche
      * @param PDU
      */
     @Override
