@@ -15,17 +15,31 @@ public class CoucheLiaisonDonnees extends Couche {
     private CoucheLiaisonDonnees(){
 
     }
+
+    /**
+     * modele de conception singleton pour sassurer pour davoir une couche liaisondonnees
+     * @return la couche
+     */
     static  public CoucheLiaisonDonnees getInstance(){
         if (instance == null){
             instance = new CoucheLiaisonDonnees();
         }
         return instance;
     }
+
+    /**
+     * Reinitialiser la couche
+     */
     public  void reset(){
         ErreurCRC = 0;
         PacketRecu = 0;
         PacketEnvoye = 0;
     }
+
+    /**
+     * Recevoir les donnees de la couche physique
+     * @param PDU
+     */
     @Override
     protected void getFromUp(byte[] PDU) {
         byte[] trame = new byte[PDU.length + 4];
@@ -46,7 +60,11 @@ public class CoucheLiaisonDonnees extends Couche {
     }
 
 
-
+    /**
+     * Recevoir un paquet de la couche reseau
+     * @param PDU
+     * @throws TransmissionErrorException
+     */
     @Override
     protected void getFromDown(byte[] PDU) throws TransmissionErrorException {
         byte[] paquet = new byte[PDU.length -4];
@@ -65,6 +83,11 @@ public class CoucheLiaisonDonnees extends Couche {
         log("Paquet reçu. Numéro de paquet: " + PacketRecu);
         sendUp(paquet);
     }
+
+    /**
+     * Affiche le message dans un document
+     * @param message
+     */
     private void log(String message) {
         try (PrintWriter out = new PrintWriter(new FileWriter("liaisonDeDonnes.log", true))) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

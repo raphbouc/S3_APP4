@@ -10,17 +10,32 @@ import static java.lang.System.arraycopy;
 
 public class CoucheApplication extends Couche {
     private static CoucheApplication instance;
+
+    /**
+     * Modele de conception singleton pour la couche application
+     * @return la couche sil elle nest pas deja creee
+     */
     public static CoucheApplication getInstance(){
         if (instance == null){
             instance = new CoucheApplication();
         }
         return instance;
     }
+
+    /**
+     * Recevoir des donnees de la couche superieur
+     * @param PDU donnees a recevoir
+     */
     @Override
     protected void getFromUp(byte[] PDU) {
         //DERNIERE COUCHE
     }
 
+    /**
+     * Recevoir des donnes de la couche inferieur
+     * @param PDU donnee a recevoir
+     * @throws TransmissionErrorException
+     */
     @Override
     protected void getFromDown(byte[] PDU) throws TransmissionErrorException {
         System.out.println("Receiving");
@@ -47,6 +62,13 @@ public class CoucheApplication extends Couche {
             exception.printStackTrace();
         }
     }
+
+    /**
+     * Envoyer le fichier a la couche transport
+     * @param path fichier a transmettre
+     * @throws IOException exception
+     * @throws InterruptedException exception
+     */
     public void EnvoyeFichier(String path) throws IOException, InterruptedException{
         File file = new File(path);
         byte[] APDU;

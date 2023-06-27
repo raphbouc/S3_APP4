@@ -5,11 +5,27 @@
         CoucheApplication coucheApplication;
         String filename;
 
+        /**
+         * Fonction pour envoyer le fichier
+         * @param filename nom du fichier
+         * @param destination_ip adresse ip de destination
+         * @param listening_port port
+         * @param addErrors savoir si on ajoute des erreur vonlontairement ou non
+         * @throws IOException exception
+         * @throws InterruptedException exception
+         */
         public ClientAppInstance(String filename, String destination_ip, String listening_port, boolean addErrors) throws IOException, InterruptedException {
             this.filename = filename;
             ClientInstanceBuild(destination_ip, listening_port, addErrors);
         }
 
+        /**
+         * Fonction pour envoyer le fichier
+         * @param destination_ip adresse ip de destination
+         * @param listening_port port
+         * @param addErrors facteur pour ajouter des erreurs volontairement ou non
+         * @throws IOException execption
+         */
         public void ClientInstanceBuild(String destination_ip, String listening_port, boolean addErrors) throws IOException {
             CoucheTransport coucheTransport = CoucheTransport.getInstance();
             CoucheReseau coucheReseau = CoucheReseau.getInstance();
@@ -33,6 +49,11 @@
             couchePhysique.setDestAddresseIp(destination_ip);
         }
 
+        /**
+         * Commencer a ajouter le fichier au serveur
+         * @throws IOException
+         * @throws InterruptedException
+         */
         public void ClientStart() throws IOException, InterruptedException {
             System.out.println("Client Start");
             couchePhysique.start();

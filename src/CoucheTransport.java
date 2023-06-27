@@ -28,7 +28,7 @@ public class CoucheTransport extends Couche {
 
     /**
      * Modele de conception singleton pour la couche de transport
-     * @return l instance sil y en pas deja une de creer
+     * @return l instance de la couche
      */
     public static CoucheTransport getInstance() {
         if (instance == null){

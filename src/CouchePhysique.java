@@ -11,19 +11,22 @@ public class CouchePhysique extends Couche {
     private CouchePhysique(){
 
     };
+
+    /**
+     * Modele de conception singleton pour sassurer davoir une seul couche physique
+     * @return la couche
+     */
     static public CouchePhysique getInstance(){
         if (instance == null){
             instance = new CouchePhysique();
         }
         return instance;
     }
-    public void setDestAddresseIP(InetAddress address){
-        try {
-            this.addressIP = address;
-        } catch (Exception exception){
-            exception.printStackTrace();
-        }
-    }
+
+    /**
+     * set ladresse ip de destination
+     * @param addresse
+     */
     public void setDestAddresseIp(String addresse){
         try{
             this.addressIP = InetAddress.getByName(addresse);
@@ -31,20 +34,43 @@ public class CouchePhysique extends Couche {
             exception.printStackTrace();
         }
     }
+
+    /**
+     * set le port de destination
+     * @param port
+     */
     public void setDestPort(int port){
         this.port = port;
     }
+
+    /**
+     * commencer le thread
+     */
     public void start(){
         thread.running = true;
         thread.start();
     }
+
+    /**
+     * terminer le thread
+     */
     public void stop(){
         thread.running = false;
         thread.interrupt();
     }
+
+    /**
+     * regarder si le thread est lancer
+     * @return vrai ou faux selon si le thread est lancer ou pas
+     */
     public boolean threadRunning(){
         return thread.running;
     }
+
+    /**
+     * 
+     * @param PDU
+     */
     @Override
     protected void getFromUp(byte[] PDU) {
         DatagramSocket Dsocket = null;
